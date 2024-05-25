@@ -1,11 +1,11 @@
 import React from 'react';
-import { Route, Switch, Link } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Feed from './pages/Feed';
 import Profile from './pages/Profile';
-import './App.css';
 import Navbar from './Navbar';
+import './App.css';
 
 function App() {
   return (
