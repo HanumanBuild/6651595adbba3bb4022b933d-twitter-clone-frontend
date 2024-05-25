@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const history = useHistory();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -14,7 +16,8 @@ const Signup = () => {
         email,
         password
       });
-      console.log(response.data);
+      localStorage.setItem('token', response.data.token);
+      history.push('/');
     } catch (error) {
       console.error(error);
     }
