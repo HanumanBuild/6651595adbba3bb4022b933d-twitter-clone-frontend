@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import useWebSocket from 'react-use-websocket';
 
 const Feed = () => {
   const [tweets, setTweets] = useState([]);
   const [content, setContent] = useState('');
+
+  const { lastJsonMessage } = useWebSocket('ws://127.0.0.1:5000', {
+    onOpen: () => {
+      console.log('WebSocket connection established.');
+    },
+    onMessage: (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'new_tweet') {
+        setTweets((prevTweets) => [data.tweet, ...prevTweets]);
+      }
+    }
+  });
 
   useEffect(() => {
     const fetchTweets = async () => {
@@ -27,8 +40,21 @@ const Feed = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setTweets([response.data, ...tweets]);
       setContent('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteTweet = async (tweetId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${process.env.REACT_APP_TWITTER_CLONE_BACKEND_URL}/api/tweets/${tweetId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setTweets(tweets.filter(tweet => tweet._id !== tweetId));
     } catch (error) {
       console.error(error);
     }
@@ -61,6 +87,12 @@ const Feed = () => {
           <div key={tweet._id} className="border-b border-gray-200 py-4">
             <p className="text-gray-700">{tweet.content}</p>
             <p className="text-gray-500 text-sm">by {tweet.author.username}</p>
+            <button
+              onClick={() => handleDeleteTweet(tweet._id)}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+            >
+              Delete
+            </button>
           </div>
         ))}
       </div>
